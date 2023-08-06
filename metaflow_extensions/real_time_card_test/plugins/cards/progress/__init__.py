@@ -11,6 +11,7 @@ class ProgressCard(MetaflowCard):
 
     ALLOW_USER_COMPONENTS = True
     IS_RUNTIME_CARD = True
+    RELOAD_POLICY = MetaflowCard.RELOAD_POLICY_NEVER
 
     type = "progress"
 

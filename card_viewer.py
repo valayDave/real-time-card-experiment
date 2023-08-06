@@ -74,7 +74,7 @@ class RequestHandler(BaseHTTPRequestHandler):
         with S3() as s3:
             obj = s3.get(url, return_missing=True)
             if obj.exists:
-                self._response({'status': 'ok', 'data': json.loads(obj.blob)}, is_json=True)
+                self._response({'status': 'ok', 'payload': json.loads(obj.blob)}, is_json=True)
             else:
                 self._response({'status': 'not found'}, is_json=True)
 

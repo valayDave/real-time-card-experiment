@@ -35,22 +35,42 @@
 
 <script>
 
-async function data_update(frame_src, data_url, update_fun){
+async function data_update(frame_src, data_url, update_fun, reload_token){
     const response = await fetch(data_url);
     const resp = await response.json();
     let frame = document.getElementById('cardFrame');
-    if (frame.src == frame_src && (resp.status == 'not found' || update_fun(resp.data))){
-        setTimeout(() => data_update(frame_src, data_url, update_fun), 5000);
+    // first check the user hasn't switched to another card
+    console.log('data', resp, 'reload_token', reload_token)
+    if (frame.src == frame_src){
+        // do we have valid data?
+        if (resp.status == 'not found')
+            // if not, try again later
+            setTimeout(() => data_update(frame_src, data_url, update_fun, reload_token), 5000);
+        else{            
+            // yes, data is valid
+            // do we have the right version of the card content?
+            if (resp.payload.reload_token == reload_token){
+                // update data and check that the return value is valid. In particular,
+                // the result is undefined if the card has changed and update_fun is invalid
+                if (update_fun(resp.payload.data))
+                    setTimeout(() => data_update(frame_src, data_url, update_fun, reload_token), 5000);
+            }else{
+                // card is outdated, reload it. This will re-fetch data, so we will be back
+                // in this function soon
+                frame.contentWindow.location.reload();
+            }
+        }
     }
 }
 
 function card_loaded(){
     let frame = document.getElementById('cardFrame');
     let update_fun = frame.contentWindow.metaflow_card_update;
+    const reload_token = frame.contentWindow.METAFLOW_RELOAD_TOKEN;
     frame.style.display = 'block';
     if (update_fun){
         let data_url = "/data/" + frame.src.split('/').slice(4).join('/');
-        setTimeout(() => data_update(frame.src, data_url, update_fun), 1);
+        setTimeout(() => data_update(frame.src, data_url, update_fun, reload_token), 1);
     }
 }
 
