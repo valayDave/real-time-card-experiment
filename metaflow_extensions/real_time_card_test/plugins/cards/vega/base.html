@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Embedding Vega-Lite</title>
+    <script src="https://cdn.jsdelivr.net/npm/vega@5.25.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.12.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.22.1"></script>
+        <style type="text/css">
+        body{
+            font-size: 100%;
+            font-family: sans-serif;
+            padding: 0;
+            margin: 20px;
+        }
+    </style>
+  </head>
+  <body>
+    <h1>TITLE</h1>
+    <div id="vis"></div>
+
+    <script type="text/javascript">
+      var view;
+      var spec = {
+        $schema: 'https://vega.github.io/schema/vega-lite/v5.json',
+        description: 'A simple bar chart with embedded data.',
+        data: {
+            "name": "myData"
+        },
+        mark: 'bar',
+        autosize: {"type": "pad", "resize": true},
+        encoding: {
+          x: {field: 'a', type: 'ordinal'},
+          y: {field: 'b', type: 'quantitative'}
+        }
+      };
+      spec =  {
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "description": "Google's stock price over time.",
+  "data": {"name": "myData"},
+  "mark": "line",
+  "width": 800,
+  "height": 400,
+  "encoding": {
+    "x": {"field": "time", "type": "temporal"},
+    "y": {"field": "val", "type": "quantitative"}
+  }
+};
+
+      vegaEmbed('#vis', spec).then(function(result) {
+        view = result.view;
+        DISABLEmetaflow_card_update(INITIAL_DATA)
+      }).catch(console.error);
+
+    function DISABLEmetaflow_card_update(data){
+        console.log('update data');
+        if (view){
+            view.change('myData', vega.changeset().remove(vega.truthy).insert(data.values));
+            view.run();
+        }
+        return true;
+    }
+    /*
+    setInterval(function(){
+        console.log('update data');
+        const data =              {
+          values: [
+            {time: '2023-01-01', val: Math.random()},
+            {time: '2023-01-02', val: Math.random()},
+            {time: '2023-01-03', val: Math.random()},
+            {time: '2023-01-04', val: Math.random()},
+            {time: '2023-01-05', val: Math.random()},
+            {time: '2023-01-06', val: Math.random()},
+            {time: '2023-01-07', val: Math.random()},
+            {time: '2023-01-08', val: Math.random()},
+            {time: '2023-01-09', val: Math.random()}
+          ]
+        };
+        view.change('myData', vega.changeset().remove(vega.truthy).insert(data.values));
+        //view.data('myData', data);
+        //view.resize();
+        view.run();
+        console.log('data updated');
+    }, 2000);
+    */
+    </script>
+  </body>
+</html>
