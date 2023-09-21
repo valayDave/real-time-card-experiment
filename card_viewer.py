@@ -26,15 +26,20 @@ class RequestHandler(BaseHTTPRequestHandler):
                 self._response(f.read())
 
     def get_runinfo(self, suffix):
+        print("Gettin run info")
         latest = find_latest_run()
+        print("found latest run")
         if latest:
             flow, run_id = latest
+            cardsx = list(find_cards(flow, run_id))
+            print(cardsx)
             cards = [
                 {"label": "%s/%s %s" % (step, task_id, name), "card": card_id}
                 for _, step, task_id, name, card_id in sorted(
-                    find_cards(flow, run_id), reverse=True
+                    cardsx, reverse=True
                 )
             ]
+            print(cards)
             resp = {"status": "ok", "flow": flow, "run_id": run_id, "cards": cards}
         else:
             resp = {"status": "no runs"}
@@ -97,9 +102,9 @@ def find_latest_run():
             path = os.path.join(".metaflow", flow, "latest_run")
             if os.path.exists(path):
                 with open(path) as f:
-                    yield os.path.getmtime(path), flow, f.read()
+                    yield flow, f.read()
 
-    for _, flow, run_id in sorted(_list(), reverse=True):
+    for flow, run_id in sorted(_list(), reverse=True):
         return flow, run_id
 
 
@@ -114,6 +119,7 @@ def find_cards(flow, run_id):
     with S3() as s3:
         objs = s3.list_recursive([root])
         for obj in objs:
+            print(obj.key)
             if obj.key.startswith("steps/") and obj.key.endswith('.html') and obj.size > 0:
                 _, step, _, task_id, _, fname = obj.key.split("/")
                 name = fname.split("-")[-2]
