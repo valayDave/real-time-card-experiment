@@ -10,7 +10,7 @@ TEMPLATE_PATH = os.path.join(ABS_DIR_PATH, "base.html")
 class ProgressCard(MetaflowCard):
 
     ALLOW_USER_COMPONENTS = True
-    IS_RUNTIME_CARD = True
+    RUNTIME_UPDATABLE = True
     RELOAD_POLICY = MetaflowCard.RELOAD_POLICY_NEVER
 
     type = "progress"

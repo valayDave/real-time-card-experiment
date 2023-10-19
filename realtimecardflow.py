@@ -41,27 +41,33 @@ class RealtimeCardFlow(FlowSpec):
     @card
     @step
     def start(self):
-        self.next(self.component_card)
+        self.iter_values = list(range(10))
+        self.next(self.component_card, foreach="iter_values")
 
+    @card(type="blank", id="card2")
     @card(type="default", id="card1")
     @step
     def component_card(self):
-        # current.card['card1'].append(Markdown("## Initial Content In card"), id="markdown1")
-        progress_bar = ProgressBar(100, label="progress1")
-
-        progress_bar.update(10)
-        current.card['card1'].append(progress_bar, id="progress1")
+        card_map = current.card
+        import uuid
+        current_id = uuid.uuid4().hex
         
+        current.card['card1'].append(Markdown("## [%s] Initial Content In card" % current_id), id="markdown1")
         current.card['card1'].append(
             Table([[1,2,3], [4,5,6]], headers=["a", "b", "c"])
         )
-        n = 100
-        print("Starting to measure progress...")
+        n = 500
         for i in range(n):
-            # current.card['card1'].components['markdown1'].update(f"## Content updated {i*10}/{n*10} markdown1")
-            current.card["card1"].components["progress1"].update(i)
+            current.card['card1'].components['markdown1'].update(
+                f"## [{current_id}] Content updated {i*10}/{n*10} markdown1"
+            )
             current.card['card1'].refresh()
             time.sleep(1)
+        self.next(self.join)
+    
+    @step
+    def join(self, inputs):
+        print("Joining")
         self.next(self.progress_bar)
 
     @card(type="progress")
