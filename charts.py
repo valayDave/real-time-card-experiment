@@ -79,7 +79,14 @@ def line_chart_spec(
         "data": {"name": "values"},
         "mark": {
             "type": "line",
+            "tooltip": True,
             **(parameter_marks if with_params else {}),
+        },
+        "selection": {
+            "grid": {
+                "type": "interval", 
+                "bind": "scales"
+            }
         },
         "encoding": {
             "x": {
