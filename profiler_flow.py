@@ -2,8 +2,8 @@ from metaflow import FlowSpec, step, card, current
 from profiler_decorator import profiler
 import time
 
-class SystemProfileFlow(FlowSpec):
 
+class SystemProfileFlow(FlowSpec):
     @profiler(interval=1)
     @step
     def start(self):
@@ -15,6 +15,7 @@ class SystemProfileFlow(FlowSpec):
     @step
     def end(self):
         pass
+
 
 if __name__ == "__main__":
     SystemProfileFlow()
