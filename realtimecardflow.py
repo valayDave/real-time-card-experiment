@@ -16,7 +16,7 @@ class RealtimeCardFlow(FlowSpec):
     @card
     @step
     def start(self):
-        self.iter_values = list(range(10))
+        self.iter_values = list(range(2))
         self.next(self.image_table_tests)
     
     @card(type="blank")
@@ -52,7 +52,7 @@ class RealtimeCardFlow(FlowSpec):
     @card(type="progress")
     @step
     def progress_bar(self):
-        n = 100
+        n = self.sleep_cycles
         print("Starting to measure progress...")
         for i in range(n):
             current.card.refresh({"value": i})
@@ -64,7 +64,7 @@ class RealtimeCardFlow(FlowSpec):
     @step
     def chart(self):
         values = []
-        n = 100
+        n = self.sleep_cycles
         print("Starting to chart...")
         for i in range(n):
             val = math.sin(i * 0.1) + random.random() * 0.1 - 0.05
