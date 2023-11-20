@@ -77,7 +77,9 @@ class NeuralNetCardFlow(FlowSpec):
             batch_size=self.batch_size,
             epochs=self.epochs,
             validation_split=0.1,
-            callbacks=[MetaflowCardUpdates(log_every_n_steps=100)],
+            callbacks=[
+                MetaflowCardUpdates(log_every_n_steps=100)
+            ],
         )
         
         # fig_acc, fig_loss = plot_learning_curves(history)

@@ -46,7 +46,6 @@ def get_charts_in_table(width_per_chart=600, height_per_chart=400):
     metric_types = ["loss", "accuracy"]
     infinite_defaultdict = lambda: defaultdict(infinite_defaultdict)
     chart_dict = infinite_defaultdict()
-    itertools.product(chart_types, epoch_step, metric_types)
     for chart_type, epoch_or_step, metric_type in itertools.product(
         chart_types, epoch_step, metric_types
     ):
