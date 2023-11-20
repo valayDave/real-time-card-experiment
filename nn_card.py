@@ -29,14 +29,12 @@ class LineChart(MetaflowCardComponent):
             height=height,
             with_params=with_params,
         )
-        self.chart = VegaChart(self.spec, data=self.data)
 
     def update(self, data):  # Can take a diff
         self.data["values"].append(data)
-        self.chart.update(self.data)
 
     def render(self):
-        return self.chart.render()
+        return VegaChart(self.spec, data=self.data).render()
 
 
 def get_charts_in_table(width_per_chart=600, height_per_chart=400):
@@ -133,6 +131,7 @@ class MetaflowCardUpdates(callbacks.Callback):
         self.card_id = card_id
         self.current_epoch = 0
         self.log_every_n_steps = log_every_n_steps
+        
 
     def curret_total_steps(self, steps):
         return self.current_epoch * self.params["steps"] + steps
