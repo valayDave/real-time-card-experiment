@@ -82,11 +82,50 @@ def get_charts_in_a_table():
         charts_objects,
     )
 
+import requests
+def get_random_image():
+    endpoint = "https://picsum.photos/200/300"
+    response = requests.get(endpoint)
+    # Get the response as bytes
+    image_bytes = response.content
+    return image_bytes
+    
+
+def get_image_table_frozen():
+    images = []
+    for i in range(3):
+        images.append([Image(src=get_random_image()) for j in range(3)])
+    return Table(data=images, disable_updates=True)
+
+def get_image_table_dynamic():
+    images = []
+    for i in range(3):
+        images.append([Image(src=get_random_image(), disable_updates=False) for j in range(3)])
+    return Table(data=images, disable_updates=False), [j for i in images for j in i]
+
+
 class RealtimeCardFlow(FlowSpec):
     @card
     @step
     def start(self):
         self.iter_values = list(range(10))
+        self.next(self.image_table_tests)
+    
+    @card(type="blank")
+    @step
+    def image_table_tests(self):
+        current.card.append(Markdown("# Image Table Tests"))
+        current.card.append(Markdown("## Image Table Which Is Frozen In Time\n No Updates will be shipped to this table on refresh"))
+        current.card.append(get_image_table_frozen())
+        current.card.append(Markdown("## Image Table Which Is Dynamic\n Updates will be shipped to this table on refresh"))
+        table, images = get_image_table_dynamic()
+        current.card.append(table)
+        current.card.refresh()
+        for _ in range(30):
+            for i in images:
+                i.update(bytes=get_random_image())
+            current.card.refresh()
+            time.sleep(3)
         self.next(self.pre_native_chart)
 
     @card(type="blank")
