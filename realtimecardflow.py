@@ -1,5 +1,12 @@
 from metaflow import card, current, FlowSpec, step, Parameter
-from metaflow.cards import Markdown, Image, Table, MetaflowCardComponent, VegaChart, ProgressBar
+from metaflow.cards import (
+    Markdown,
+    Image,
+    Table,
+    MetaflowCardComponent,
+    VegaChart,
+    ProgressBar,
+)
 import os
 import time
 import re
@@ -7,18 +14,35 @@ import math
 import random
 from datetime import datetime
 import requests
-from card_testing_scenarios import table_and_images_test, charting_tests, progress_bar_tests, multi_card_markdown_test
+from card_testing_scenarios import (
+    table_and_images_test,
+    charting_tests,
+    progress_bar_tests,
+    multi_card_markdown_test,
+    frequent_refresh_test
+)
+
 
 class RealtimeCardFlow(FlowSpec):
-
-    sleep_cycles = Parameter('sleep-cycles', default=20)
+    sleep_cycles = Parameter("sleep-cycles", default=20)
 
     @card
     @step
     def start(self):
         self.iter_values = list(range(2))
-        self.next(self.image_table_tests)
+        self.next(self.timeout_card_test)
     
+    @card(type="test_timeout_card", options={"timeout": 20}, timeout=5)
+    @step
+    def timeout_card_test(self):
+        self.next(self.frequent_refresh_test)
+
+    @card(type="blank", refresh_interval=2)
+    @step
+    def frequent_refresh_test(self):
+        frequent_refresh_test(sleep_cycles=self.sleep_cycles)
+        self.next(self.image_table_tests)
+
     @card(type="blank")
     @step
     def image_table_tests(self):

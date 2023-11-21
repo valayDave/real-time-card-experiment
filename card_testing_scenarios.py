@@ -244,6 +244,33 @@ def charting_tests(sleep_cycles=100):
         current.card.refresh()
         time.sleep(1)
 
+def frequent_refresh_test(sleep_cycles=100):
+    from metaflow import current
+    current.card.append(Markdown("# Frequent Refresh Test"))
+    progresbar = ProgressBar(
+        max=sleep_cycles,
+        label="Progress Bar",
+        value=0,
+        unit="percent",
+        metadata="0 iter/s",
+    )
+    time_track = "## Time Tracking\n"
+    time_tracking_markdown = Markdown(time_track)
+    current.card.append(progresbar)
+    current.card.append(time_tracking_markdown)
+    current.card.refresh()
+    n = sleep_cycles
+    print("Starting to measure progress...")
+    for i in range(sleep_cycles):
+        iter_per_second = i / n
+        progresbar.update(i, metadata="%.2f iter/s" % iter_per_second)
+        time_track += f"- iteration {i}/{n} {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n"
+        time_tracking_markdown.update(
+            time_track
+        )
+        current.card.refresh()
+        print(f"iteration {i}/{n}")
+        time.sleep(1)
 
 def progress_bar_tests(sleep_cycles=100):
     """
