@@ -30,6 +30,13 @@ class RealtimeCardFlow(FlowSpec):
     @step
     def start(self):
         self.iter_values = list(range(2))
+        self.next(self.component_card)
+
+    @card(type="blank", id="card2", refresh_interval=2)
+    @card(type="default", id="card1",save_errors=False, refresh_interval=2)
+    @step
+    def component_card(self):
+        multi_card_markdown_test(sleep_cycles=30)
         self.next(self.timeout_race_condition)
     
     @card(type="refresh_timeout_card", options={"timeout": 10}, timeout=30, save_errors=False)
@@ -74,18 +81,6 @@ class RealtimeCardFlow(FlowSpec):
     @step
     def native_progressbar(self):
         progress_bar_tests(sleep_cycles=self.sleep_cycles)
-        self.next(self.component_card, foreach="iter_values")
-
-    @card(type="blank", id="card2")
-    @card(type="default", id="card1")
-    @step
-    def component_card(self):
-        multi_card_markdown_test(sleep_cycles=self.sleep_cycles)
-        self.next(self.join)
-
-    @step
-    def join(self, inputs):
-        print("Joining")
         self.next(self.progress_bar)
 
     @card(type="progress")
@@ -99,7 +94,7 @@ class RealtimeCardFlow(FlowSpec):
             time.sleep(1)
         self.next(self.chart)
 
-    @card(type="vega")
+    @card(type="vega", save_errors=False)
     @step
     def chart(self):
         values = []
