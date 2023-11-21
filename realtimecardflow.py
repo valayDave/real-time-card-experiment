@@ -30,9 +30,24 @@ class RealtimeCardFlow(FlowSpec):
     @step
     def start(self):
         self.iter_values = list(range(2))
+        self.next(self.timeout_race_condition)
+    
+    @card(type="refresh_timeout_card", options={"timeout": 10}, timeout=30, save_errors=False)
+    @step
+    def timeout_race_condition(self):
+        """
+        - There is a case where we could have a async process and another non async process run in parallel. 
+        - This is something we are not okay with because the async one (render_runtime) can override the values of the sync process (render). 
+        - When we call the final render+refresh, we will wait for any async process to finish complete execution and ensure that both methods/processes complete execution.
+        - This test and it's associated card will try to validate this case. 
+        """
+        current.card.refresh({"value": 0})
+        time.sleep(3)
+        # Sleep for 3 seconds (a time which is smaller than the time the card takes to render in the async process)
+        # In this case, the main render should wait for the async render to finish, and then render the card
         self.next(self.timeout_card_test)
     
-    @card(type="test_timeout_card", options={"timeout": 20}, timeout=5)
+    @card(type="test_timeout_card", options={"timeout": 20}, timeout=2)
     @step
     def timeout_card_test(self):
         self.next(self.frequent_refresh_test)

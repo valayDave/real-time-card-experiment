@@ -1,4 +1,6 @@
-STEP_DECORATORS_DESC = [("dynamic_card", ".dynamic_decorators.deco.DynamicCardDecorator")]
+STEP_DECORATORS_DESC = [
+    ("dynamic_card", ".dynamic_decorators.deco.DynamicCardDecorator")
+]
 
 ###
 # CONFIGURE: Similar to datatools, you can make visible under metaflow.plugins.* other

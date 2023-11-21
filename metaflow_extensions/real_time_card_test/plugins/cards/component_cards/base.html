@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <style>
+        #output {
+            white-space: pre-wrap;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="output"></div>
+
+
+<script>
+    var METAFLOW_RELOAD_TOKEN = "[METAFLOW_RELOAD_TOKEN]";
+
+    function updateView(jsonString) {
+        let parsed;
+        try {
+            parsed = JSON.parse(jsonString);
+        } catch (e) {
+            document.getElementById('output').textContent = 'Invalid JSON!';
+            document.getElementById('output').style.color = 'red';
+            return;
+        }
+        document.getElementById('output').textContent = JSON.stringify(parsed, null, 4);
+        document.getElementById('output').style.color = 'black';
+    }
+
+   
+</script>
+
+<script>
+    var COMPONENT_DATA = {{{COMPONENT_DATA}}}
+    updateView(JSON.stringify(COMPONENT_DATA))
+</script>
+
+<script>
+     function metaflow_card_update(data) {
+        console.log("value of data")
+        console.log(data)
+        // Assumption data is a dictionary of id:component object
+        for (let _item of COMPONENT_DATA) {
+            for (let item of _item["contents"]){
+                // Check if the current item's id is present in data
+                    if ('id' in item && item.id in data) {
+                        // Update the current item with the data from the data dictionary
+                        console.log("Updating data")
+                        Object.assign(item, data[item.id]);
+                    }
+            }
+
+        }
+        updateView(JSON.stringify(COMPONENT_DATA));
+        return true
+    }
+</script>
+
+</body>
+</html>
