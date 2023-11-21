@@ -13,7 +13,8 @@ class VegaCard(MetaflowCard):
 
     type = "vega"
 
-    def render(self, task, data):
+    def render(self, task):
+        data = self.runtime_data
         with open(TEMPLATE_PATH) as f:
             txt = f.read().replace("TITLE", "Charting (final) %s" % task.pathspec)
             return txt.replace("INITIAL_DATA", json.dumps(data.get("user", {})))
@@ -38,7 +39,7 @@ class TimeoutCard(MetaflowCard):
         time.sleep(60)
         return "<h1>Timeout Card In Runtime<h1>"
 
-    def render(self, task, data):
+    def render(self, task):
         import time
 
         time.sleep(60)

@@ -18,7 +18,7 @@ class ComponentBasedCard(MetaflowCard):
     def __init__(self, options={}, components=[], graph=None):
         self._components = components
 
-    def render(self, task, data):
+    def render(self, task):
         with open(TEMPLATE_PATH) as f:
             return pt.render(
                 f.read(),
