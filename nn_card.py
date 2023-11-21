@@ -7,6 +7,7 @@ from metaflow.cards import (
     Markdown,
     ProgressBar,
 )
+from metaflow.plugins.cards.card_modules.components import with_default_component_id
 from tensorflow import keras  # pylint: disable=import-error
 from keras import callbacks  # pylint: disable=import-error
 
@@ -15,7 +16,7 @@ class LineChart(MetaflowCardComponent):
     REALTIME_UPDATABLE = True
 
     def __init__(
-        self, title, xtitle, ytitle, x_name, y_name, width, height, with_params=False
+        self, title, xtitle, ytitle, x_name, y_name, width, height, with_params=False, x_axis_temporal=False
     ):
         super().__init__()
 
@@ -28,13 +29,17 @@ class LineChart(MetaflowCardComponent):
             width=width,
             height=height,
             with_params=with_params,
+            x_axis_temporal=x_axis_temporal,
         )
 
     def update(self, data):  # Can take a diff
         self.data["values"].append(data)
 
+    @with_default_component_id
     def render(self):
-        return VegaChart(self.spec, data=self.data).render()
+        vega_chart = VegaChart(self.spec, data=self.data)
+        vega_chart.component_id = self.component_id
+        return vega_chart.render()
 
 
 def get_charts_in_table(width_per_chart=600, height_per_chart=400):

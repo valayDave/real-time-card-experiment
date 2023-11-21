@@ -1,5 +1,6 @@
-from metaflow import FlowSpec, step, card, current, Parameter, pypi_base
+from metaflow import FlowSpec, step, card, current, Parameter, pypi_base, resources
 from metaflow.cards import Image
+from profiler_decorator import profiler
 
 
 def plot_learning_curves(history):
@@ -40,8 +41,8 @@ def get_model(num_classes):
     )
 
 
-@pypi_base(python="3.11", packages={"tensorflow": "2.15.0"})
-class NeuralNetCardFlow(FlowSpec):
+@pypi_base(python="3.11", packages={"tensorflow": "2.15.0", "boto3":"1.28.45", "altair": "5.1.2", "pandas":"2.1.1", "psutil":"5.9.5"})
+class NeuralNetCardFlowNew(FlowSpec):
     epochs = Parameter("epochs", default=10)
 
     batch_size = Parameter("batch-size", default=20)
@@ -62,7 +63,9 @@ class NeuralNetCardFlow(FlowSpec):
         self.y_test = utils.to_categorical(y_test, self.num_classes)
         self.next(self.train_model)
 
-    @card(type="blank")
+    @resources(cpu=4,memory=8000)
+    @profiler(interval=1)
+    @card(type="blank", id="loss_card", refresh_interval=1)
     @step
     def train_model(self):
         from nn_card import MetaflowCardUpdates
@@ -78,7 +81,7 @@ class NeuralNetCardFlow(FlowSpec):
             epochs=self.epochs,
             validation_split=0.1,
             callbacks=[
-                MetaflowCardUpdates(log_every_n_steps=100)
+                MetaflowCardUpdates(log_every_n_steps=100, card_id="loss_card")
             ],
         )
         
@@ -93,4 +96,4 @@ class NeuralNetCardFlow(FlowSpec):
 
 
 if __name__ == "__main__":
-    NeuralNetCardFlow()
+    NeuralNetCardFlowNew()

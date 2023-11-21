@@ -7,93 +7,74 @@ from datetime import datetime
 from metaflow import current
 import time
 
-
-class LineChartComponent(DefaultComponent):
-    type = "lineChart"
-
-    REALTIME_UPDATABLE = True
-
-    def __init__(
-        self,
-        data=None,
-        labels=None,
-        max_size=None,
-        x_axis_title=None,
-        y_axis_title=None,
-    ):
-        super().__init__(title=None, subtitle=None)
-        self.data = data or []
-        self.labels = labels or []
-        self.max_size = max_size
-        self.x_axis_title = x_axis_title
-        self.y_axis_title = y_axis_title
-
-    def update(self, data=None, labels=None, **kwargs):
-        if data is not None:
-            self.data.append(data)
-            if self.max_size is not None:
-                self.data = self.data[-self.max_size :]
-        if labels is not None:
-            self.labels.append(labels)
-            if self.max_size is not None:
-                self.labels = self.labels[-self.max_size :]
-
-    def render(self):
-        datadict = super().render()
-        config = {
-            "type": "line",
-            "data": {
-                "labels": [],
-                "datasets": [
-                    {
-                        "backgroundColor": "#FF6384",
-                        "borderColor": "#FF6384",
-                        "data": [],
-                    }
-                ],
-            },
-            "options": {
-                "plugins": {                
-                    "legend": {
-                        "display": False
-                    }
-                }
-            },
-        }
-        
-        def _check_and_add_title(title, key):
-            if title is None:
-                return
-            if "scales" not in config["options"]:
-                config["options"]["scales"] = {}
-            
-            config["options"]["scales"][key] = {
-                "title": {
-                    "display": True,
-                    "text": title,
-                }
-            }
-
-        _check_and_add_title(self.x_axis_title, "x",)
-        _check_and_add_title(self.y_axis_title, "y",)
-        datadict.update({"data": self.data, "labels": self.labels, "config": config})
-        if self.id is not None:
-            datadict["id"] = self.id
-        return datadict
-
-
 class Profiler:
     def __init__(self, filename, interval):
+        from nn_card import LineChart
         self.filename = filename
         self.interval = interval
         self.latest_reading = Markdown("*Initializing profiler...*")
         self.charts = {
-            "cpu_chart": LineChartComponent(max_size=100, y_axis_title="CPU Usage", x_axis_title="Time"),
-            "memory_chart": LineChartComponent(max_size=100, y_axis_title="Memory Usage", x_axis_title="Time"),
-            "disk_chart": LineChartComponent(max_size=100, y_axis_title="Disk Usage", x_axis_title="Time"),
-            "process_chart": LineChartComponent(max_size=100, y_axis_title="Number of Running Processes", x_axis_title="Time"),
-            "load_chart": LineChartComponent(max_size=100, y_axis_title="Load Average", x_axis_title="Time"),
-            "uptime_chart": LineChartComponent(max_size=100, y_axis_title="System Uptime", x_axis_title="Time"),
+            "cpu_chart": LineChart(
+                title="CPU Utilization",
+                xtitle="Time",
+                ytitle="CPU Usage",
+                x_name="time",
+                y_name="cpu",
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+            ),
+            "memory_chart": LineChart(
+                ytitle="Memory Usage",
+                xtitle="Time",
+                x_name="time",
+                y_name="memory",
+                title="Memory Utilization",
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+            ),
+            "disk_chart": LineChart(
+                ytitle="Disk Usage",
+                xtitle="Time",
+                x_name="time",
+                y_name="disk",
+                title="Disk Utilization",
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+            ),
+            "process_chart": LineChart(
+                ytitle="Number of Running Processes",
+                xtitle="Time",
+                x_name="time",
+                y_name="process",
+                title="Number of Running Processes",
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+            ),
+            "load_chart": LineChart(
+                ytitle="Load Average",
+                xtitle="Time",
+                x_name="time",
+                y_name="load",
+                title="Load Average",    
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+
+            ),
+            "uptime_chart": LineChart(
+                ytitle="System Uptime",
+                xtitle="Time",
+                x_name="time",
+                y_name="uptime",
+                title="System Uptime",
+                width=600,
+                height=400,
+                x_axis_temporal=True,
+            ),
         }
 
     def collect_data(self):
@@ -146,22 +127,27 @@ class Profiler:
                 "*Latest Reading on: %s*" % current_timestamp,
             )
             self.charts["cpu_chart"].update(
-                data=data["CPU Usage"], labels=current_timestamp
+                dict(cpu=data["CPU Usage"], time=current_timestamp)
             )
             self.charts["memory_chart"].update(
-                data=data["Memory Usage"], labels=current_timestamp
+                dict(memory=data["Memory Usage"], time=current_timestamp)
+                # data=data["Memory Usage"], labels=current_timestamp
             )
             self.charts["disk_chart"].update(
-                data=data["Disk Usage"], labels=current_timestamp
+                dict(disk=data["Disk Usage"], time=current_timestamp)
+                # data=data["Disk Usage"], labels=current_timestamp
             )
             self.charts["process_chart"].update(
-                data=data["Number of Running Processes"], labels=current_timestamp
+                dict(process=data["Number of Running Processes"], time=current_timestamp)
+                # data=data["Number of Running Processes"], labels=current_timestamp
             )
             self.charts["load_chart"].update(
-                data=data["Load Average"][0], labels=current_timestamp
+                dict(load=data["Load Average"][0], time=current_timestamp)
+                # data=data["Load Average"][0], labels=current_timestamp
             )
             self.charts["uptime_chart"].update(
-                data=data["System Uptime"], labels=current_timestamp
+                dict(uptime=data["System Uptime"], time=current_timestamp)
+                # data=data["System Uptime"], labels=current_timestamp
             )
             current.card["system_profile"].refresh()
             time.sleep(self.interval)
@@ -189,7 +175,7 @@ class profiler:
             )
             for chart_id, chart in prof.charts.items():
                 current.card["system_profile"].append(
-                    Markdown("## %s Chart" % chart.y_axis_title)
+                    Markdown("## %s Chart" % chart.spec["title"])
                 )
                 current.card["system_profile"].append(chart, id=chart_id)
 
@@ -204,6 +190,6 @@ class profiler:
         if self.with_card:
             from metaflow import card
 
-            return card(type="blank", id="system_profile")(func)
+            return card(type="blank", id="system_profile", refresh_interval=self.interval)(func)
         else:
             return func
