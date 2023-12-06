@@ -14,6 +14,6 @@
 
 ## Run the flow 
 
-1. Run the flow in the terminal: `python realtimecardflow.py run`
-2. Run the card viewer to see the status of the flow [In another terminal window]: `python realtimecardflow.py card server`
+1. Run the flow in the terminal: `python realtimecardflow.py --datastore local --metadata local run`
+2. Run the card viewer to see the status of the flow [In another terminal window]: `python realtimecardflow.py --datastore local --metadata local card server`
 3. Go to the browser on `http://localhost:8324/` to see the cards
