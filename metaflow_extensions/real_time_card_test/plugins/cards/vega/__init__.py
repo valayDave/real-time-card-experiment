@@ -8,24 +8,42 @@ TEMPLATE_PATH = os.path.join(ABS_DIR_PATH, "base.html")
 
 
 class VegaCard(MetaflowCard):
-
     ALLOW_USER_COMPONENTS = True
-    IS_RUNTIME_CARD = True
+    RUNTIME_UPDATABLE = True
 
     type = "vega"
 
-    def render(self, task, data):
+    def render(self, task):
+        data = self.runtime_data
         with open(TEMPLATE_PATH) as f:
             txt = f.read().replace("TITLE", "Charting (final) %s" % task.pathspec)
-            return txt.replace("INITIAL_DATA", json.dumps(data.get('user', {})))
+            return txt.replace("INITIAL_DATA", json.dumps(data.get("user", {})))
 
     def render_runtime(self, task, data):
         with open(TEMPLATE_PATH) as f:
             txt = f.read().replace("TITLE", "Charting (runtime) %s" % task.pathspec)
             txt = txt.replace("DISABLE", "")
-            return txt.replace("INITIAL_DATA", json.dumps(data.get('user', {})))
+            return txt.replace("INITIAL_DATA", json.dumps(data.get("user", {})))
 
     def refresh(self, task, data):
-        return data['user']
+        return data["user"]
 
-CARDS = [VegaCard]
+
+class TimeoutCard(MetaflowCard):
+    RUNTIME_UPDATABLE = True
+    type = "timeout"
+
+    def render_runtime(self, task, data):
+        import time
+
+        time.sleep(60)
+        return "<h1>Timeout Card In Runtime<h1>"
+
+    def render(self, task):
+        import time
+
+        time.sleep(60)
+        return "<h1>Timeout Card<h1>"
+
+
+CARDS = [VegaCard, TimeoutCard]

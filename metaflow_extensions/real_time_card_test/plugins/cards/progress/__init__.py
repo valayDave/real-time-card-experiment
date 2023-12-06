@@ -8,9 +8,8 @@ TEMPLATE_PATH = os.path.join(ABS_DIR_PATH, "base.html")
 
 
 class ProgressCard(MetaflowCard):
-
     ALLOW_USER_COMPONENTS = True
-    IS_RUNTIME_CARD = True
+    RUNTIME_UPDATABLE = True
     RELOAD_POLICY = MetaflowCard.RELOAD_POLICY_NEVER
 
     type = "progress"
@@ -24,9 +23,10 @@ class ProgressCard(MetaflowCard):
         with open(TEMPLATE_PATH) as f:
             txt = f.read().replace("TITLE", "Progress (runtime) %s" % task.pathspec)
             txt = txt.replace("DISABLE", "")
-            return txt.replace("PROGRESS", str(data['user']['value']))
+            return txt.replace("PROGRESS", str(data["user"]["value"]))
 
     def refresh(self, task, data):
-        return data['user']
+        return data["user"]
+
 
 CARDS = [ProgressCard]
