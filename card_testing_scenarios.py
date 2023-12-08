@@ -4,8 +4,8 @@ import math
 import random
 from datetime import datetime
 import requests
-
-
+from PIL import Image as PILImage
+import io
 
 def get_random_image():
     endpoint = "https://picsum.photos/200/300"
@@ -13,6 +13,14 @@ def get_random_image():
     # Get the response as bytes
     image_bytes = response.content
     return image_bytes
+    
+def get_random_pil_image():
+    endpoint = "https://picsum.photos/200/300"
+    response = requests.get(endpoint)
+    # Get the response as bytes
+    image_bytes = response.content
+    # Create PIL Image from Bytes
+    return PILImage.open(io.BytesIO(image_bytes))
     
 
 def get_image_table_frozen():
@@ -27,6 +35,14 @@ def get_image_table_dynamic():
         images.append([Image(src=get_random_image(), disable_updates=False) for j in range(3)])
     return Table(data=images), [j for i in images for j in i]
 
+def make_random_matplotlib_figure():
+    import matplotlib.pyplot as plt
+    import numpy as np
+    fig = plt.figure(figsize=(5, 5))
+    x = np.linspace(0, 10, 100)
+    y = random.choice([np.sin(x), np.cos(x), np.tan(x), np.exp(x), np.log(x)])
+    plt.plot(x, y)
+    return fig
 
 def get_charts_in_a_table():
     from charts import line_chart_spec
@@ -167,13 +183,20 @@ def table_and_images_test(sleep_cycles=30):
     current.card.append(Image(src=get_random_image(), disable_updates=False), id="updating_image")
     current.card.append(Markdown("## Staic Image"))
     current.card.append(Image(src=get_random_image()), id="static_image")
+    current.card.append(Markdown("## PIL Images"))
+    current.card.append(Image.from_pil_image(get_random_pil_image()), id="pil_updating_image")
+    current.card.append(Markdown("## Updating MatplotLib Figure"))
+    current.card.append(Image.from_matplotlib(make_random_matplotlib_figure()), id="matplotlib_figure")
+
     current.card.refresh()
     for _ in range(sleep_cycles):
         for i in images:
-            i.update(bytes=get_random_image())
-        current.card.components["updating_image"].update(bytes=get_random_image())
+            i.update(get_random_image())
+        current.card.components["updating_image"].update(get_random_image())
         # Trying to update `static_image` shouldnot break anything.
-        current.card.components["static_image"].update(bytes=get_random_image()) 
+        current.card.components["static_image"].update(get_random_image())
+        current.card.components["pil_updating_image"].update(get_random_pil_image())
+        current.card.components["matplotlib_figure"].update(make_random_matplotlib_figure())
         current.card.refresh()
         time.sleep(1)
 

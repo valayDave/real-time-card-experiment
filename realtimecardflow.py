@@ -65,7 +65,7 @@ class RealtimeCardFlow(FlowSpec):
         frequent_refresh_test(sleep_cycles=self.sleep_cycles)
         self.next(self.image_table_tests)
 
-    @card(type="blank")
+    @card(type="blank", refresh_interval=1)
     @step
     def image_table_tests(self):
         table_and_images_test(sleep_cycles=self.sleep_cycles)

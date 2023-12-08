@@ -1,7 +1,9 @@
-import altair as alt
-
-import altair as alt
-import pandas as pd
+try:
+    import altair as alt
+    import pandas as pd
+except ImportError:
+    alt = None
+    pd = None
 import numpy as np
 
 
@@ -19,6 +21,7 @@ def line_chart_spec(
     width=600,
     height=400,
     with_params=True,
+    x_axis_temporal=False,
 ):
     parameters = [
         {
@@ -91,8 +94,9 @@ def line_chart_spec(
         "encoding": {
             "x": {
                 "field": x_name,
-                "type": "quantitative",
                 "title": xtitle if xtitle else x_name,
+                **({"timeUnit":"seconds"} if x_axis_temporal else {}),
+                **({"type":"quantitative"} if not x_axis_temporal else {}),
             },
             "y": {
                 "field": y_name,
