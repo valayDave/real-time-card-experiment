@@ -88,10 +88,10 @@ def get_charts_in_a_table():
         with_params=False,
     )
 
-    train_epoch_chart = VegaChart(train_spec_epoch, data=train_data_epoch)
-    val_epoch_chart = VegaChart(val_spec_epoch, data=val_data_epoch)
-    train_step_chart = VegaChart(train_spec_step, data=train_data_step)
-    val_step_chart = VegaChart(val_spec_step, data=val_data_step)
+    train_epoch_chart = VegaChart(train_spec_epoch,)
+    val_epoch_chart = VegaChart(val_spec_epoch, )
+    train_step_chart = VegaChart(train_spec_step,)
+    val_step_chart = VegaChart(val_spec_step,)
 
     data_objects = (train_data_epoch, val_data_epoch, train_data_step, val_data_step)
     charts_objects = (
@@ -104,12 +104,12 @@ def get_charts_in_a_table():
         Table(
             [
                 [
-                    VegaChart(train_spec_epoch, data=train_data_epoch),
-                    VegaChart(val_spec_epoch, data=val_data_epoch),
+                    VegaChart(train_spec_epoch, ),
+                    VegaChart(val_spec_epoch, ),
                 ],
                 [
-                    VegaChart(train_spec_step, data=train_data_step),
-                    VegaChart(val_spec_step, data=val_data_step),
+                    VegaChart(train_spec_step,),
+                    VegaChart(val_spec_step,),
                 ],
             ],
             headers=["Train", "Validation"],
@@ -209,14 +209,14 @@ def charting_tests(sleep_cycles=100):
     3. Charts inside a table
     4. Updating the charts
     """
-    from charts import line_chart_spec, update_data_object, get_charts
+    from charts import line_chart_spec, update_data_object, get_charts, update_spec_data
     from metaflow import current
     # Create the Chart
     import random
 
     charts_table, data_objects, chart_objects = get_charts_in_a_table()
     spec, data_object = line_chart_spec()
-    chart_from_spec = VegaChart(spec, data=data_object)
+    chart_from_spec = VegaChart(spec, show_controls=True)
     current.card.append(Markdown("# Charts In A Table"))
     current.card.append(charts_table)
     current.card.append(Markdown("# Vanilla Vega Spec Chart"))
@@ -239,29 +239,29 @@ def charting_tests(sleep_cycles=100):
     epochs = 10
     for i in range(sleep_cycles):
         current.card.components["spec_chart_comp"].update(
-            data=update_data_object(
-                data_object, {"u": i, "v": random.random() * 100}
+            spec=update_spec_data(
+                chart_from_spec._spec, {"u": i, "v": random.random() * 100}
             )
         )
         train_step_chart.update(
-            data=update_data_object(
-                train_data_step, {"step": i, "loss": random.random() * 100}
+            spec=update_spec_data(
+                train_step_chart._spec, {"step": i, "loss": random.random() * 100}
             )
         )
         val_step_chart.update(
-            data=update_data_object(
-                val_data_step, {"step": i, "loss": random.random() * 100}
+            spec=update_spec_data(
+                val_step_chart._spec, {"step": i, "loss": random.random() * 100}
             )
         )
         if i % epochs == 0:
             train_epoch_chart.update(
-                data=update_data_object(
-                    train_data_epoch, {"epoch": i, "loss": random.random() * 100}
+                spec=update_spec_data(
+                    train_epoch_chart._spec, {"epoch": i, "loss": random.random() * 100}
                 )
             )
             val_epoch_chart.update(
-                data=update_data_object(
-                    val_data_epoch, {"epoch": i, "loss": random.random() * 100}
+                spec=update_spec_data(
+                    val_epoch_chart._spec, {"epoch": i, "loss": random.random() * 100}
                 )
             )
         current.card.refresh()

@@ -1,4 +1,4 @@
-from charts import line_chart_spec
+from charts import line_chart_spec, update_spec_data
 from metaflow import current
 from metaflow.cards import (
     VegaChart,
@@ -20,7 +20,7 @@ class LineChart(MetaflowCardComponent):
     ):
         super().__init__()
 
-        self.spec, self.data = line_chart_spec(
+        self.spec, _ = line_chart_spec(
             title=title,
             xtitle=xtitle,
             ytitle=ytitle,
@@ -33,11 +33,11 @@ class LineChart(MetaflowCardComponent):
         )
 
     def update(self, data):  # Can take a diff
-        self.data["values"].append(data)
+        self.spec = update_spec_data(self.spec, data)
 
     @with_default_component_id
     def render(self):
-        vega_chart = VegaChart(self.spec, data=self.data)
+        vega_chart = VegaChart(self.spec,)
         vega_chart.component_id = self.component_id
         return vega_chart.render()
 

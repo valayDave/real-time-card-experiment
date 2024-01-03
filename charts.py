@@ -6,6 +6,9 @@ except ImportError:
     pd = None
 import numpy as np
 
+def update_spec_data(spec, data):
+    spec["data"]["values"].append(data)
+    return spec
 
 def update_data_object(data_object, data):
     data_object["values"].append(data)
@@ -76,10 +79,15 @@ def line_chart_spec(
     spec = {
         "title": title if title else "Line Chart",
         "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
-        "width": width,
-        "height": height,
+        # "width": width,
+        # "height": height,
         "params": parameters if with_params else [],
-        "data": {"name": "values"},
+        "data": {
+            "name": "values",
+            "values": [
+
+            ]
+        },
         "mark": {
             "type": "line",
             "tooltip": True,
